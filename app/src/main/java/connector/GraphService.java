@@ -20,9 +20,9 @@ public class GraphService {
             properties.load(GraphService.class.getResourceAsStream("application.properties"));
 
             final ClientSecretCredential credential = new ClientSecretCredentialBuilder()
-                    .clientId(properties.getProperty("app:clientId"))
-                    .clientSecret(properties.getProperty("app:clientSecret"))
-                    .tenantId(properties.getProperty("app:tenantId"))
+                    .clientId(properties.getProperty("app.clientId"))
+                    .clientSecret(properties.getProperty("app.clientSecret"))
+                    .tenantId(properties.getProperty("app.tenantId"))
                     .build();
             final TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(credential);
             final DebugHandler debugHandler = new DebugHandler();

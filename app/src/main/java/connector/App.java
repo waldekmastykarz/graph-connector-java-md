@@ -2,11 +2,23 @@ package connector;
 
 import java.io.IOException;
 
-import com.microsoft.graph.requests.UserCollectionPage;
-
 public class App {
     public static void main(String[] args) throws IOException {
-        final UserCollectionPage user = GraphService.getClient().users().buildRequest().get();
-        System.out.println(user.getCurrentPage().get(0).displayName);
+        if (args.length == 0) {
+            System.out.println("Please provide a command");
+            return;
+        }
+
+        switch (args[0]) {
+            case "create-connection":
+                ConnectionService.provisionConnection();
+                break;
+            case "load-content":
+                // query();
+                break;
+            default:
+                System.out.println("Unknown command");
+                break;
+        }
     }
 }
