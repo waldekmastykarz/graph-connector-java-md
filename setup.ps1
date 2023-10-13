@@ -36,4 +36,8 @@ $kvPairs = @{
 $output = foreach ($key in $kvPairs.Keys) {
     "$key = $($kvPairs[$key])"
 }
-$output | Out-File -FilePath "app/src/main/resources/application.properties"
+$path = "app/src/main/resources/connector"
+if (!(Test-Path $path)) {
+    New-Item -Path $path -ItemType Directory | Out-Null
+}
+$output | Out-File -FilePath "$($path)/application.properties"

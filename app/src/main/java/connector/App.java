@@ -1,11 +1,12 @@
 package connector;
 
-public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
+import java.io.IOException;
 
-    public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+import com.microsoft.graph.requests.UserCollectionPage;
+
+public class App {
+    public static void main(String[] args) throws IOException {
+        final UserCollectionPage user = GraphService.getClient().users().buildRequest().get();
+        System.out.println(user.getCurrentPage().get(0).displayName);
     }
 }
