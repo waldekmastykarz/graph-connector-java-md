@@ -14,7 +14,7 @@ public class App {
                 ConnectionService.provisionConnection();
                 break;
             case "load-content":
-                // query();
+                ContentService.loadContent();
                 break;
             default:
                 System.out.println("Unknown command");

@@ -25,10 +25,11 @@ public class GraphService {
                     .tenantId(properties.getProperty("app.tenantId"))
                     .build();
             final TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(credential);
-            final DebugHandler debugHandler = new DebugHandler();
             final OkHttpClient okHttpClient = HttpClients.createDefault(authProvider)
                     .newBuilder()
-                    .addInterceptor(debugHandler)
+                    .addInterceptor(new CompleteJobWithDelayHandler(10000))
+                    .addInterceptor(new DebugHandler())
+                    .callTimeout(25, java.util.concurrent.TimeUnit.MINUTES)
                     .build();
 
             client = GraphServiceClient.builder()

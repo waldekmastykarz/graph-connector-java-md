@@ -25,6 +25,7 @@ public class ConnectionConfiguration {
         resolver.itemId = "{slug}";
         resolver.priority = 1;
         resolver.urlMatchInfo = urlMatchInfo;
+        resolver.oDataType = "#microsoft.graph.externalConnectors.itemIdResolver";
 
         final ActivitySettings as = new ActivitySettings();
         as.urlToItemResolvers = Arrays.asList(resolver);
@@ -34,7 +35,7 @@ public class ConnectionConfiguration {
         template.priority = 1;
         final String adaptiveCard = new String(
                 ConnectionConfiguration.class
-                        .getResourceAsStream("resultLayout.properties")
+                        .getResourceAsStream("resultLayout.json")
                         .readAllBytes());
         template.layout = JsonParser.parseString(adaptiveCard);
 
@@ -42,7 +43,7 @@ public class ConnectionConfiguration {
         searchSettings.searchResultTemplates = Arrays.asList(template);
 
         final ExternalConnection ec = new ExternalConnection();
-        ec.id = "waldekblogdotnet";
+        ec.id = "waldekblogjava";
         ec.name = "Waldek Mastykarz (blog); Java";
         ec.description = "Tips and best practices for building applications on Microsoft 365 by Waldek Mastykarz - Microsoft 365 Cloud Developer Advocate";
         ec.activitySettings = as;

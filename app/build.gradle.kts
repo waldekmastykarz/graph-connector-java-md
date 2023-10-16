@@ -20,6 +20,8 @@ dependencies {
     implementation("com.google.guava:guava:32.1.1-jre")
     implementation("com.microsoft.graph:microsoft-graph:5.+")
     implementation("com.azure:azure-identity:1.+")
+    implementation("org.commonmark:commonmark:0.20.0")
+    implementation("org.commonmark:commonmark-ext-yaml-front-matter:0.20.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

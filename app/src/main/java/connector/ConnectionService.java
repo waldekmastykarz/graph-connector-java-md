@@ -28,7 +28,7 @@ public class ConnectionService {
 
     public static void provisionConnection() {
         try {
-            CreateConnection();
+            // CreateConnection();
             CreateSchema();
         } catch (Exception e) {
             System.out.println(e.getMessage());
