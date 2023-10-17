@@ -22,6 +22,7 @@ dependencies {
     implementation("com.azure:azure-identity:1.+")
     implementation("org.commonmark:commonmark:0.20.0")
     implementation("org.commonmark:commonmark-ext-yaml-front-matter:0.20.0")
+    implementation("org.slf4j:slf4j-nop:1.7.32")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

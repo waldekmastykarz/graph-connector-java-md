@@ -16,7 +16,7 @@
             "request": "launch",
             "mainClass": "connector.App",
             "projectName": "app",
-            "args": "load-content",
+            "args": "",
             "cwd": "${workspaceFolder}/app"
         }
     ]
