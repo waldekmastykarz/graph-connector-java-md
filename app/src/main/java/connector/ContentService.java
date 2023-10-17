@@ -2,9 +2,14 @@ package connector;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +23,9 @@ import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.microsoft.graph.externalconnectors.models.AccessType;
 import com.microsoft.graph.externalconnectors.models.Acl;
 import com.microsoft.graph.externalconnectors.models.AclType;
@@ -28,7 +36,6 @@ import com.microsoft.graph.externalconnectors.models.ExternalItemContent;
 import com.microsoft.graph.externalconnectors.models.ExternalItemContentType;
 import com.microsoft.graph.externalconnectors.models.Identity;
 import com.microsoft.graph.externalconnectors.models.IdentityType;
-import com.microsoft.graph.externalconnectors.models.ExternalItemContentType;
 import com.microsoft.graph.externalconnectors.models.Properties;
 import com.microsoft.graph.externalconnectors.requests.ExternalActivityCollectionPage;
 
@@ -108,8 +115,12 @@ public class ContentService {
         return blogPosts;
     }
 
-    private static List<ExternalItem> transform(List<BlogPost> items) {
+    private static List<ExternalItem> transform(List<BlogPost> items) throws MalformedURLException {
         final List<ExternalItem> transformed = new ArrayList<>();
+        final URL baseUrl = new URL("https://blog.mastykarz.nl");
+        final DateTimeFormatter isoFormatter = DateTimeFormatter.ISO_DATE_TIME;
+        final DateTimeFormatter localFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        
         for (BlogPost item : items) {
             final Acl acl = new Acl();
             acl.accessType = AccessType.GRANT;
@@ -120,29 +131,48 @@ public class ContentService {
             content.value = item.content;
             content.type = ExternalItemContentType.HTML;
 
-                
+            final LocalDateTime dateTime = LocalDateTime.parse(item.metadata.get("date").get(0), localFormatter);
+            final Gson gson = new Gson();
+
             final Properties properties = new Properties();
-            properties.additionalDataManager().put("title", item.metadata.get("title").get(0));
+            properties.additionalDataManager()
+                .put("title", JsonParser.parseString(String.format("\"%s\"", item.metadata.get("title").get(0))));
+            properties.additionalDataManager()
+                .put("excerpt", JsonParser.parseString(String.format("\"%s\"", item.metadata.get("excerpt").get(0))));
+            properties.additionalDataManager()
+                .put("imageUrl", JsonParser.parseString(String.format("\"%s\"", new URL(baseUrl, item.metadata.get("image").get(0)).toString())));
+            properties.additionalDataManager()
+                .put("url", JsonParser.parseString(String.format("\"%s\"", new URL(baseUrl, item.metadata.get("slug").get(0)).toString())));
+            properties.additionalDataManager()
+                .put("date", JsonParser.parseString(String.format("\"%s\"", dateTime.format(isoFormatter).toString())));
+            properties.additionalDataManager()
+                .put("tags@odata.type", JsonParser.parseString(String.format("\"%s\"", "Collection(String)")));
+            properties.additionalDataManager()
+                .put("tags", gson.toJsonTree(item.metadata.get("tags")).getAsJsonArray());
 
             final Identity createdBy = new Identity();
             createdBy.type = IdentityType.USER;
             createdBy.id = "9da37739-ad63-42aa-b0c2-06f7b43e3e9e";
 
+            final ZoneOffset zoneOffset = ZoneOffset.ofHours(2);
+
             final ExternalActivity created = new ExternalActivity();
             created.oDataType = "#microsoft.graph.externalConnectors.externalActivity";
             created.type = ExternalActivityType.CREATED;
             created.performedBy = createdBy;
-            final List<ExternalActivity> activities = new ArrayList<>();
-            activities.add(created);
+            created.startDateTime = dateTime.atOffset(zoneOffset);
+            final List<ExternalActivity> activities = Arrays.asList(created);
             
             final ExternalItem transformedItem = new ExternalItem();
             transformedItem.id = item.metadata.get("slug").get(0);
             transformedItem.content = content;
+            transformedItem.acl = Arrays.asList(acl);
             transformedItem.properties = properties;
             transformedItem.activities = new ExternalActivityCollectionPage(activities, null);
 
             transformed.add(transformedItem);
         }
+
         return transformed;
     }
 
@@ -154,7 +184,7 @@ public class ContentService {
                         .connections(ConnectionConfiguration.getExternalConnection().id)
                         .items(item.id)
                         .buildRequest()
-                        .patchAsync(item)
+                        .putAsync(item)
                         .get();
                 System.out.println("DONE");
             } catch (Exception e) {

@@ -27,8 +27,8 @@ public class GraphService {
             final TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(credential);
             final OkHttpClient okHttpClient = HttpClients.createDefault(authProvider)
                     .newBuilder()
-                    .addInterceptor(new CompleteJobWithDelayHandler(10000))
-                    .addInterceptor(new DebugHandler())
+                    .addInterceptor(new CompleteJobWithDelayHandler(60000))
+                    // .addInterceptor(new DebugHandler())
                     .callTimeout(25, java.util.concurrent.TimeUnit.MINUTES)
                     .build();
 
